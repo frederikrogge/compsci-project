@@ -29,3 +29,8 @@ def z_score(x):
 
 def normalize(x):
     return (x - np.min(x)) / (np.max(x) - np.min(x))
+
+def OLS_linearReg(x_train, y_train):
+  # Determine optimal parameters
+  beta = np.linalg.pinv(x_train.T @ x_train) @ x_train.T @ y_train
+  return beta
