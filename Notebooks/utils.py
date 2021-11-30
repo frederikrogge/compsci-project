@@ -27,7 +27,7 @@ def z_score(x):
     return (x - np.mean(x, axis=0)) / np.std(x, axis=0)
 
 
-def normalize(x):
+def min_max_scale(x):
     return (x - np.min(x)) / (np.max(x) - np.min(x))
 
 def OLS_linearReg(x_train, y_train):
