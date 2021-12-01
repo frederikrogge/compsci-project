@@ -55,3 +55,7 @@ def generate_batches(X, Y, batch_size, equal_size=False):
         x_batches.append(X[idx, :])
         y_batches.append(Y[idx])
     return x_batches, y_batches
+
+
+def logistic_func(x):
+    return 1 / (1 + np.exp(-x))
