@@ -57,7 +57,7 @@ def generate_batches(X, Y, batch_size, equal_size=False):
     return x_batches, y_batches
 
 
-def logistic_func(x, epsilon = 1e-15):
-    p = np.clip( 1 / (1 + np.exp(-x)) , epsilon, 1.- epsilon)
+def logistic_func(x, epsilon=1e-15):
+    p = np.clip(1 / (1 + np.exp(-x)), epsilon, 1.-epsilon)
     return p
 
