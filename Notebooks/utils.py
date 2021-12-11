@@ -69,26 +69,35 @@ def logistic_func(x, epsilon=1e-15):
 
 
 def plot_metric(y, x=None, show=False, title='', name=None, x_label='x', y_label='y', fig=None, save=False, ax=None,
-                x_limit=None, y_limit=None, nx_ticks=None):
+                x_limit=None, y_limit=None, nx_ticks=None, legend=None):
     """Plots a metric and/or adds it to an axis object
     """
     if ax is None:
         fig, ax = plt.subplots()
 
+    y = np.array(y)
+
     if x is None:
-        ax.plot(y)
+        x = np.arange(y.shape[-1])
+
+    # When we have multiple lines
+    if len(y.shape) == 2:
+        for row in y:
+            ax.plot(x, row)
     else:
         ax.plot(x, y)
-        if nx_ticks is not None:
-            ax.get_xaxis().set_ticks(x, nx_ticks)
-        else:
-            ax.get_xaxis().set_ticks(x)
+
+    if nx_ticks is not None:
+        ax.get_xaxis().set_ticks(x, nx_ticks)
 
     ax.set_xlabel(x_label)
     ax.set_ylabel(y_label)
     ax.set_title(title)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
+
+    if legend is not None:
+        ax.legend(legend, frameon=False)
 
     if x_limit is not None:
         ax.set_xlim(x_limit)
