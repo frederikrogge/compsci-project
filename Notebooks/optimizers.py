@@ -46,8 +46,8 @@ class Adam(Optimizer):
         self.v_dw = self.beta2 * self.v_dw + (1 - self.beta2) * (gradient ** 2)
 
         # Perform bias correction
-        m_dw_corr = self.m_dw / (1 - self.beta1 ** self.t)
-        v_dw_corr = self.v_dw / (1 - self.beta2 ** self.t)
+        m_dw_corr = self.m_dw / (1 - self.beta1 ** (self.t + 1))
+        v_dw_corr = self.v_dw / (1 - self.beta2 ** (self.t + 1))
 
         # Update parameters
         parameters = parameters - self.lr * (m_dw_corr / (np.sqrt(v_dw_corr) + 1e-8))
