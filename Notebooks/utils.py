@@ -1,7 +1,12 @@
 """
 Let's put all the methods and functionality that might be useful across tasks here.
 """
+import matplotlib.pyplot as plt
+from matplotlib import cm
 import numpy as np
+import os
+
+from definitions import SAVE_PATH
 
 
 def FrankeFunction(x, y):
@@ -29,6 +34,7 @@ def z_score(x):
 
 def min_max_scale(x):
     return (x - np.min(x)) / (np.max(x) - np.min(x))
+
 
 def OLS_linearReg(x_train, y_train):
   # Determine optimal parameters
@@ -61,3 +67,81 @@ def logistic_func(x, epsilon=1e-15):
     p = np.clip(1 / (1 + np.exp(-x)), epsilon, 1.-epsilon)
     return p
 
+
+def plot_metric(y, x=None, show=False, title='', name=None, x_label='x', y_label='y', fig=None, save=False, ax=None,
+                x_limit=None, y_limit=None, nx_ticks=None):
+    """Plots a metric and/or adds it to an axis object
+    """
+    if ax is None:
+        fig, ax = plt.subplots()
+
+    if x is None:
+        ax.plot(y)
+    else:
+        ax.plot(x, y)
+        if nx_ticks is not None:
+            ax.get_xaxis().set_ticks(x, nx_ticks)
+        else:
+            ax.get_xaxis().set_ticks(x)
+
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
+    ax.set_title(title)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+
+    if x_limit is not None:
+        ax.set_xlim(x_limit)
+    if y_limit is not None:
+        ax.set_ylim(y_limit)
+
+    plt.tight_layout()
+
+    if save and fig is not None:
+        if name is None:
+            name = title
+        fig.savefig(os.path.join(SAVE_PATH, name), dpi=300, transparent=True, bbox_inches='tight')
+
+    if show:
+        plt.show()
+
+    return ax
+
+
+def save_fig(fig, name):
+    fig.savefig(os.path.join(SAVE_PATH, name), dpi=300, transparent=True, bbox_inches='tight')
+
+
+def plot_3d(x, y, z, show=False, title='', name=None, x_label='x', y_label='y', zlabel='z', fig=None, ax=None,
+            save=False, figsize=(10, 10), x_limit=None, y_limit=None, z_limit=None):
+
+    if ax is None:
+        fig = plt.figure(figsize=figsize)
+        ax = fig.add_subplot(111, projection='3d')
+
+    # Plot the surface.
+    surf = ax.plot_surface(x, y, z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+
+    # Add a color bar which maps values to colors
+    if fig is not None:
+        fig.colorbar(surf, shrink=0.5, aspect=5)
+
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
+    ax.set_zlabel(zlabel)
+    ax.set_title(title)
+
+    if x_limit is not None:
+        ax.set_xlim(x_limit)
+    if y_limit is not None:
+        ax.set_ylim(y_limit)
+    if z_limit is not None:
+        ax.set_zlim(z_limit)
+
+    if save and fig is not None:
+        if name is None:
+            name = title
+        fig.savefig(os.path.join(SAVE_PATH, name), dpi=300, transparent=True, bbox_inches='tight')
+
+    if show:
+        plt.show()

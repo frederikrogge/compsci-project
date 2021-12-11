@@ -6,17 +6,17 @@ from utils import *
 class BaseModel:
 
     def __init__(self,
-                 fit_intercept=True,
+                 fit_intercept=False,
                  dimension=None,
                  random_init=False,
-                 reduction='sum'):
+                 reduction='mean'):
         """Initializes basic model that can either be trained using a gradient-based method or by
         using matrix inversion.
 
         Parameters
         ----------
         fit_intercept: bool
-            Whether to explicitly fit an intercept.
+            Whether to explicitly fit an intercept. False if the intercept is included in the design matrix.
         dimension: int
             Dimension of the parameter vector. Should match dimension of feature vector.
         random_init: bool
@@ -95,14 +95,30 @@ class BaseModel:
                     # Compute new suggestion for beta
                     self.beta = self.beta - lr_eta*(gradient_value)
 
+    def train(self, X, Y, optimizer, batch_size=5, epochs=1000):
+
+        for _ in range(epochs):
+
+            # Generate batches
+            x_batches, y_batches = generate_batches(X, Y, batch_size)
+
+            # Iterate through batches
+            for x, y in zip(x_batches, y_batches):
+
+                # Determine the gradient for this batch
+                gradient = self.gradient(x, y)
+
+                # Update parameters using optimizer
+                self.beta = optimizer.update(self.beta, gradient)
+
 
 class LinearRegression(BaseModel):
 
     def __init__(self,
-                 fit_intercept=True,
+                 fit_intercept=False,
                  dimension=None,
                  random_init=False,
-                 reduction='sum',
+                 reduction='mean',
                  **kwargs):
         super().__init__(fit_intercept, dimension, random_init, reduction)
 
@@ -116,9 +132,22 @@ class LinearRegression(BaseModel):
         Y: ndarray
             (n, ) where n is number of samples
         """
-        self.beta = np.linalg.pinv(X.T @ X) @ X.T @ Y
+        # Center data
+        X_off, Y_off = 0, 0
         if self.fit_intercept:
-            self.intercept = np.mean(Y, axis=0) - np.mean(X, axis=0) @ self.beta
+            X_off, Y_off = np.mean(X, axis=0), np.mean(Y, axis=0)
+            X, Y = X - X_off, Y - Y_off
+
+        # Fit
+        self.beta = np.linalg.pinv(X.T @ X) @ X.T @ Y
+
+        # Calculate intercept
+        if self.fit_intercept:
+            self.intercept = Y_off - X_off @ self.beta
+
+    def set_intercept(self, X, Y):
+        X_off, Y_off = np.mean(X, axis=0), np.mean(Y, axis=0)
+        self.intercept = Y_off - X_off @ self.beta
 
     def gradient(self, X, Y):
         """Computes gradient of the MSE w.r.t. the parameters beta.
@@ -130,7 +159,7 @@ class LinearRegression(BaseModel):
         Y: ndarray
             (n, ) where n is number of samples
         """
-        grad = X.T @ (X @ self.beta+ self.intercept - Y)
+        grad = X.T @ (X @ self.beta + self.intercept - Y)
         return self.reduce(grad, X.shape[0])
 
 
