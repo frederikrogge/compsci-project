@@ -96,7 +96,23 @@ class BaseModel:
                     self.beta = self.beta - lr_eta*(gradient_value)
 
     def train(self, X, Y, optimizer, batch_size=5, epochs=1000):
+        """Simple gradient-descent-based train method that uses a given optimizer to update
+        the parameters of the models.
 
+        Parameters
+        ----------
+        X: ndarray
+            The training data.
+        Y: ndarray
+            The labels.
+        optimizer:
+            An optimizer instance than implements the optimizer base class.
+        batch_size: int
+            Batch size to be used for training.
+        epochs: int
+            Number of epochs you want the model to be trained.
+
+        """
         for _ in range(epochs):
 
             # Generate batches
@@ -146,6 +162,8 @@ class LinearRegression(BaseModel):
             self.intercept = Y_off - X_off @ self.beta
 
     def set_intercept(self, X, Y):
+        """Calculates the intercept given uncentered data.
+        """
         X_off, Y_off = np.mean(X, axis=0), np.mean(Y, axis=0)
         self.intercept = Y_off - X_off @ self.beta
 
