@@ -203,10 +203,19 @@ class RidgeRegression(BaseModel):
         Y: ndarray
             (n, ) where n is number of samples
 
-        Todo implement!
-
         """
-        raise NotImplemented
+        # Center data
+        X_off, Y_off = 0, 0
+        if self.fit_intercept:
+            X_off, Y_off = np.mean(X, axis=0), np.mean(Y, axis=0)
+            X, Y = X - X_off, Y - Y_off
+
+        # Fit
+        self.beta = np.linalg.pinv(X.T @ X + self.lbd*np.identity(X.shape[1])) @ X.T @ Y
+        
+        # Calculate intercept
+        if self.fit_intercept:
+            self.intercept = Y_off - X_off @ self.beta
 
     def gradient(self, X, Y):
         """Computes gradient of the MSE w.r.t. the parameters beta.
@@ -218,7 +227,7 @@ class RidgeRegression(BaseModel):
         Y: ndarray
             (n, ) where n is number of samples
         """
-        gradient = X.T @ (X @ self.beta - Y) 
+        gradient = X.T @ (X @ self.beta+ self.intercept - Y) 
         return self.reduce(gradient, X.shape[0]) + 2*self.lbd * self.beta
 
 
