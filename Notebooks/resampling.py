@@ -31,7 +31,10 @@ class Bootstrap(Resampling):
             
             # Evaluate the new model on the same test data each time.
             # create the model 
-            model = solver(**solver_args , dimension=x_train.shape[1])
+            if solver == LinearRegression or solver == RidgeRegression :
+                model = solver(**solver_args, dimension=x_train.shape[1])
+            else :
+                model = solver(**solver_args)
             
             #fit the model on the current sample
             model.fit(x_, y_)
@@ -86,7 +89,10 @@ class KFoldCV(Resampling):
                 x_test = scaler.transform(x_test)
 
             # create the model 
-            model = solver(**solver_args, dimension=x_train.shape[1])
+            if solver == LinearRegression or solver == RidgeRegression :
+                model = solver(**solver_args, dimension=x_train.shape[1])
+            else :
+                model = solver(**solver_args)
 
             # fit model
             model.fit(x_train, y_train)
