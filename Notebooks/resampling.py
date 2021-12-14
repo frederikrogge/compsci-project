@@ -19,18 +19,19 @@ class Bootstrap(Resampling):
         super(Bootstrap, self).__init__()
         
 
-    def resampling(self, x_train, x_test, y_train, y_test,solver = LinearRegression, include_intercept = False, n_bootstraps= 1000 ):
+    def resample(self, x_train, x_test, y_train, y_test, solver, n_bootstraps =10 , **solver_args ):
         # The following (m x n_bootstraps) matrix holds the column vectors y_pred
         # for each bootstrap iteration.
         y_hat_test = np.empty((y_test.shape[0], n_bootstraps))   ## test set
         y_hat_train = np.empty((y_train.shape[0], n_bootstraps))   ## train set
+        
 
         for i in range(n_bootstraps):
             x_, y_ = resample(x_train , y_train)
             
             # Evaluate the new model on the same test data each time.
             # create the model 
-            model = LinearRegression(fit_intercept= include_intercept , dimension=x_train.shape[1])
+            model = solver(**solver_args , dimension=x_train.shape[1])
             
             #fit the model on the current sample
             model.fit(x_, y_)
@@ -62,7 +63,7 @@ class KFoldCV(Resampling):
         super(KFoldCV, self).__init__()
         
         
-    def kfold_resample(self, features, labels, degree, k = 5,  include_intercept = False , scaling = True,  solver =LinearRegression):
+    def cv(self,features,labels, degree, k = 5, include_intercept = False , scaling = True ,solver=LinearRegression , **solver_args ):
         
         kfold = KFold(n_splits = k)  # Splitting into folds
         train_MSE = np.zeros(k)
@@ -85,7 +86,7 @@ class KFoldCV(Resampling):
                 x_test = scaler.transform(x_test)
 
             # create the model 
-            model = solver(fit_intercept= include_intercept, dimension=x_train.shape[1])
+            model = solver(**solver_args, dimension=x_train.shape[1])
 
             # fit model
             model.fit(x_train, y_train)
