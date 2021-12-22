@@ -77,7 +77,7 @@ class BaseModel:
             if m == 1:
                 batch_indices[0] = np.arange(len(Y))
             else:
-                kf= KFold(n_splits=m)
+                kf= KFold(n_splits=m , shuffle = True)
                 for k,(_, index) in enumerate(kf.split(X)):
                     batch_indices[k] = index
                     
@@ -216,6 +216,7 @@ class RidgeRegression(BaseModel):
         # Calculate intercept
         if self.fit_intercept:
             self.intercept = Y_off - X_off @ self.beta
+            
 
     def gradient(self, X, Y):
         """Computes gradient of the MSE w.r.t. the parameters beta.
