@@ -26,6 +26,7 @@ class BaseModel:
         
         """
         if random_init:
+            np.random.seed(10)
             self.beta = np.random.randn(dimension)
         else:
             self.beta = np.zeros(dimension)

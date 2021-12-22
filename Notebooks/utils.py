@@ -57,7 +57,7 @@ def generate_batches(X, Y, batch_size, equal_size=False):
     x_batches = []
     y_batches = []
     for i in range(n):
-        idx = batch_numbers[i*batch_size:max((i+1)*batch_size, X.shape[0])]
+        idx = batch_numbers[i*batch_size:min((i+1)*batch_size, X.shape[0])]
         x_batches.append(X[idx, :])
         y_batches.append(Y[idx])
     return x_batches, y_batches
@@ -154,3 +154,16 @@ def plot_3d(x, y, z, show=False, title='', name=None, x_label='x', y_label='y', 
 
     if show:
         plt.show()
+
+
+class LearningScheduler(object):
+    """
+    Simple learning rate scheduler.
+    """
+
+    def __init__(self, t0=5, t1=50):
+        self.t0 = t0
+        self.t1 = t1
+
+    def update(self, lr):
+        return self.t0 / (lr + self.t1)
