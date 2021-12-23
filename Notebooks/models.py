@@ -96,7 +96,7 @@ class BaseModel:
                     # Compute new suggestion for beta
                     self.beta = self.beta - lr_eta*(gradient_value)
 
-    def train(self, X, Y, optimizer, batch_size=5, epochs=1000):
+    def train(self, X, Y, optimizer, batch_size=5, epochs=1000, lr_scheduler=None):
         """Simple gradient-descent-based train method that uses a given optimizer to update
         the parameters of the models.
 
@@ -112,6 +112,8 @@ class BaseModel:
             Batch size to be used for training.
         epochs: int
             Number of epochs you want the model to be trained.
+        lr_scheduler:
+            An optional learning rate scheduler that updates the learning rate of the optimizer.
 
         """
         for _ in range(epochs):
@@ -127,6 +129,10 @@ class BaseModel:
 
                 # Update parameters using optimizer
                 self.beta = optimizer.update(self.beta, gradient)
+
+            # Update learning rate if scheduler is provided
+            if lr_scheduler is not None:
+                optimizer.lr = lr_scheduler.update(optimizer.lr)
 
 
 class LinearRegression(BaseModel):

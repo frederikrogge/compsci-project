@@ -6,7 +6,7 @@ class Optimizer:
     """
 
     def __init__(self):
-        pass
+        self.lr = None
 
     def reset(self):
         pass

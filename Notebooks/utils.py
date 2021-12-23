@@ -69,7 +69,7 @@ def logistic_func(x, epsilon=1e-15):
 
 
 def plot_metric(y, x=None, show=False, title='', name=None, x_label='x', y_label='y', fig=None, save=False, ax=None,
-                x_limit=None, y_limit=None, nx_ticks=None, legend=None):
+                x_limit=None, y_limit=None, nx_ticks=None, legend=None, alpha=1.):
     """Plots a metric and/or adds it to an axis object
     """
     if ax is None:
@@ -83,9 +83,9 @@ def plot_metric(y, x=None, show=False, title='', name=None, x_label='x', y_label
     # When we have multiple lines
     if len(y.shape) == 2:
         for row in y:
-            ax.plot(x, row)
+            ax.plot(x, row, alpha=alpha)
     else:
-        ax.plot(x, y)
+        ax.plot(x, y, alpha=alpha)
 
     if nx_ticks is not None:
         ax.get_xaxis().set_ticks(x, nx_ticks)
@@ -156,14 +156,18 @@ def plot_3d(x, y, z, show=False, title='', name=None, x_label='x', y_label='y', 
         plt.show()
 
 
-class LearningScheduler(object):
+class ExpLearningScheduler(object):
     """
     Simple learning rate scheduler.
     """
 
-    def __init__(self, t0=5, t1=50):
-        self.t0 = t0
-        self.t1 = t1
+    def __init__(self, lr0=0.01, k=1):
+        self.lr0 = lr0
+        self.k = k
+        self.t = 0
 
-    def update(self, lr):
-        return self.t0 / (lr + self.t1)
+    def update(self, *args):
+        lr = self.lr0 * np.exp(-self.k * self.t)
+        self.t += 1
+        return lr
+
