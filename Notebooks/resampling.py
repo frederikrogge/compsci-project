@@ -1,5 +1,6 @@
 import numpy as np
 from models import *
+from utils import *
 from sklearn.utils import resample
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
@@ -43,9 +44,8 @@ class Bootstrap(Resampling):
             y_hat_train[:, i] = model.predict(x_train).ravel()
             y_hat_test[:, i] = model.predict(x_test).ravel()
             
-            error_train, bias_train ,variance_train = self.error_bias_variance(y_train, y_hat_train)
-            error_test, bias_test ,variance_test = self.error_bias_variance(y_test, y_hat_test)
-        
+        error_train, bias_train ,variance_train = self.error_bias_variance(y_train, y_hat_train)
+        error_test, bias_test ,variance_test = self.error_bias_variance(y_test, y_hat_test)
         return error_test, bias_test ,variance_test, error_train, bias_train, variance_train
     
    
@@ -66,27 +66,16 @@ class KFoldCV(Resampling):
         super(KFoldCV, self).__init__()
         
         
-    def cv(self,features,labels, degree, k = 5, include_intercept = False , scaling = True ,solver=LinearRegression , **solver_args ):
+    def cv(self,feature_scale, labels, degree, k = 5 , scaling = True ,solver=LinearRegression , **solver_args ):
         
         kfold = KFold(n_splits = k)  # Splitting into folds
         train_MSE = np.zeros(k)
         test_MSE = np.zeros(k)
         
         # iterate over the folds, leaving one fold out for testing each time
-        for nk,(train_index, test_index) in enumerate(kfold.split(features)):
-            X_train, X_test = features[train_index], features[test_index]
+        for nk,(train_index, test_index) in enumerate(kfold.split(feature_scale)):
+            x_train, x_test = feature_scale[train_index], feature_scale[test_index]
             y_train, y_test = labels[train_index], labels[test_index]
-
-            # fit polynomials on test and train
-            poly = PolynomialFeatures(degree, include_bias=not include_intercept)
-            x_train = poly.fit_transform(X_train)
-            x_test = poly.fit_transform(X_test)   
-
-            if scaling:
-                # Scale data
-                scaler = StandardScaler(with_std=True)
-                x_train = scaler.fit_transform(x_train)
-                x_test = scaler.transform(x_test)
 
             # create the model 
             if solver == LinearRegression or solver == RidgeRegression :
