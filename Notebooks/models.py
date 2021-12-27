@@ -52,6 +52,12 @@ class BaseModel:
     def gradient(self, X, y):
         raise NotImplementedError
 
+    def set_intercept(self, X, Y):
+        """Calculates the intercept.
+        """
+        X_off, Y_off = np.mean(X, axis=0), np.mean(Y, axis=0)
+        self.intercept = Y_off - X_off @ self.beta
+
     def MSE_loss(self, X, Y):
         """Computes MSE w.r.t. the parameters beta.
 
@@ -146,17 +152,22 @@ class LinearRegression(BaseModel):
         super().__init__(fit_intercept, dimension, random_init, reduction)
 
     def fit(self, X, Y):
-        """Fits parameters beta using matrix inversion.
+        """Fits parameters beta using matrix inversion. If 'fit_intercept' is True, the design matrix X is to be
+        expected to not include an intercept column. Instead, the intercept will be determined manually by centering
+        the data first.
 
         Parameters
         ----------
         X: ndarray
-            (f, n) where f is number of features and n is number of samples
+            (f, n) where f is number of features and n is number of samples. Can be either centered or uncentered.
+            Note that if data is centered and 'fit_intercept' is True this class expects inference to be centered as
+            well.
         Y: ndarray
             (n, ) where n is number of samples
         """
         # Center data
-        X_off, Y_off = 0, 0
+        Y_unc = Y.copy()
+        X_unc = X.copy()
         if self.fit_intercept:
             X_off, Y_off = np.mean(X, axis=0), np.mean(Y, axis=0)
             X, Y = X - X_off, Y - Y_off
@@ -166,13 +177,7 @@ class LinearRegression(BaseModel):
 
         # Calculate intercept
         if self.fit_intercept:
-            self.intercept = Y_off - X_off @ self.beta
-
-    def set_intercept(self, X, Y):
-        """Calculates the intercept given uncentered data.
-        """
-        X_off, Y_off = np.mean(X, axis=0), np.mean(Y, axis=0)
-        self.intercept = Y_off - X_off @ self.beta
+            self.set_intercept(X_unc, Y_unc)
 
     def gradient(self, X, Y):
         """Computes gradient of the MSE w.r.t. the parameters beta.
@@ -212,7 +217,8 @@ class RidgeRegression(BaseModel):
 
         """
         # Center data
-        X_off, Y_off = 0, 0
+        Y_unc = Y.copy()
+        X_unc = X.copy()
         if self.fit_intercept:
             X_off, Y_off = np.mean(X, axis=0), np.mean(Y, axis=0)
             X, Y = X - X_off, Y - Y_off
@@ -222,8 +228,7 @@ class RidgeRegression(BaseModel):
         
         # Calculate intercept
         if self.fit_intercept:
-            self.intercept = Y_off - X_off @ self.beta
-            
+            self.set_intercept(X_unc, Y_unc)
 
     def gradient(self, X, Y):
         """Computes gradient of the MSE w.r.t. the parameters beta.
