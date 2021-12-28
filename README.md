@@ -2,7 +2,7 @@
 
 ### Information
 
-The written report is called report.pdf. All figures can be found in ```./figures```. There is a jupyter notebook for every question located in ```./Notebooks```. Additionally, some generic functionality can be found in ```models.py```, ```optimizers.py``` and ```utils.py``` in the same folder.
+The written report is called ```report.pdf```. All figures can be found in ```./figures```. There is a jupyter notebook for every question located in ```./Notebooks```. Additionally, some generic functionality can be found in ```models.py```, ```optimizers.py``` and ```utils.py``` in the same folder.
 
 ### Getting started
 
